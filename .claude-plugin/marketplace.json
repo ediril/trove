@@ -1,0 +1,13 @@
+{
+  "name": "trove",
+  "owner": {
+    "name": "Emrah Diril"
+  },
+  "plugins": [
+    {
+      "name": "trove",
+      "source": "./claude",
+      "description": "Trove Coding workflow framework: maintain project meta-knowledge (principles, plans, decisions, topics, rationale) alongside code via /trove:init, /trove:session, /trove:resume, /trove:save, and /trove:handover skills."
+    }
+  ]
+}
