@@ -1,14 +1,16 @@
 {
-  "SessionStart": [
-    {
-      "matcher": "startup|resume|compact",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "${CLAUDE_PLUGIN_ROOT}/scripts/load-trove-session.sh",
-          "timeout": 30
-        }
-      ]
-    }
-  ]
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/load-trove-session.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
 }
