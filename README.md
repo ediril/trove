@@ -60,7 +60,7 @@ The plugin assumes the user owns git state — Claude never runs `git add`, `git
 
 All skills except `/trove:session` are explicit-invocation only — Claude won't auto-invoke them based on message content; you must use the slash command to trigger them. `/trove:session` may be auto-invoked when Claude detects the start of a Trove-managed task.
 
-A `SessionStart` hook also auto-injects the canonical trove files plus `plans/`, `decisions/`, and `topics/` into the agent's context on session start, resume, and after compaction — keeping context fresh without manual reload. The hook self-gates on the presence of a `trove/` directory, so projects without a trove are unaffected. Requires `jq`.
+A `SessionStart` hook also auto-injects the canonical trove files plus `plans/` into the agent's context on session start, resume, and after compaction — keeping current direction and in-flight work fresh without manual reload. `decisions/` and `topics/` are read on demand based on the current task (`practices.md` directs the agent to check `trove/topics/` before non-trivial code changes), keeping the auto-load size flat as the trove grows. The hook self-gates on the presence of a `trove/` directory, so projects without a trove are unaffected. Requires `jq`.
 
 ## Other Coding Agents
 

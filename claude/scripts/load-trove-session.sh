@@ -4,9 +4,17 @@
 # Self-gates on the presence of trove/ in $CLAUDE_PROJECT_DIR. No-op otherwise,
 # so it is safe to register globally — projects without a trove are unaffected.
 #
-# Mirrors what /trove:session reads: summary.md, terminology.md, practices.md,
-# and all files in plans/, decisions/, topics/. Skips git log -10 (cheap to
-# re-run on demand) and the handover-doc prompt (replaced with a brief notice).
+# Loads the three canonical files (summary.md, terminology.md, practices.md)
+# and the full content of plans/ — current in-flight work that's critical
+# context, especially after compaction.
+#
+# Does NOT auto-load decisions/ or topics/. Those are reference material the
+# agent should pull in on demand based on the current task — practices.md
+# already directs the agent to check trove/topics/ before non-trivial code
+# changes. Eager-loading every file would balloon the auto-load as the trove
+# grows; lode's lode-map.md was deliberately not carried over to trove for
+# the same reason (avoid maintenance burden + drift; let directory structure
+# and descriptive filenames be the implicit map).
 
 set -euo pipefail
 
@@ -60,9 +68,7 @@ context="$(
   emit_file "$TROVE/terminology.md" "terminology.md"
   emit_file "$TROVE/practices.md"   "practices.md"
 
-  emit_dir "$TROVE/plans"     "plans/"
-  emit_dir "$TROVE/decisions" "decisions/"
-  emit_dir "$TROVE/topics"    "topics/"
+  emit_dir "$TROVE/plans" "plans/"
 
   # Surface handover docs without reading them — mirrors /trove:session
   # behavior of asking whether the user meant /trove:resume.

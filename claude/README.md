@@ -8,7 +8,7 @@ Workflow framework for maintaining project meta-knowledge alongside code. Provid
 - **`/trove:save`** — update trove meta-entries from accumulated git changes
 - **`/trove:handover`** — write a handover doc (use before switching to another coding agent)
 
-In addition, a **SessionStart hook** auto-injects the canonical trove files (`summary.md`, `terminology.md`, `practices.md`) plus all of `plans/`, `decisions/`, and `topics/` into the agent's context on session start, resume, and after compaction. The hook is global but self-gates on the presence of a `trove/` directory, so projects without a trove are unaffected. See [Auto-loading at session start](#auto-loading-at-session-start) below.
+In addition, a **SessionStart hook** auto-injects the canonical trove files (`summary.md`, `terminology.md`, `practices.md`) plus the full content of `plans/` into the agent's context on session start, resume, and after compaction. `decisions/` and `topics/` are read on demand — `practices.md` directs the agent to check `trove/topics/` before non-trivial code changes. The hook is global but self-gates on the presence of a `trove/` directory, so projects without a trove are unaffected. See [Auto-loading at session start](#auto-loading-at-session-start) below.
 
 ## Installation
 
@@ -56,7 +56,9 @@ All skills except `/trove:session` are explicit-invocation only — Claude won't
 
 Once installed, the plugin registers a `SessionStart` hook that fires on `startup`, `resume`, and `compact`. The hook script (`scripts/load-trove-session.sh`) is global — it runs in every Claude Code session — but self-gates on `[ -d trove ]` and exits silently in projects without a trove directory.
 
-When a `trove/` exists, the hook reads `summary.md`, `terminology.md`, `practices.md`, and every file in `plans/`, `decisions/`, and `topics/`, then injects them as `additionalContext` so the agent has them in scope without manual `/trove:session`. This closes the gap that used to appear after compaction (where the agent lost context-loaded files) and after `/trove:save` updates trove files mid-session.
+When a `trove/` exists, the hook reads the three canonical files (`summary.md`, `terminology.md`, `practices.md`) and the full content of `plans/` (current in-flight work), then injects them as `additionalContext` so the agent has them in scope without manual `/trove:session`. This closes the gap that used to appear after compaction (where the agent lost context-loaded files) and after `/trove:save` updates trove files mid-session.
+
+`decisions/` and `topics/` are intentionally **not** auto-loaded. They're reference material the agent reads on demand when the current task surfaces a relevant area — `practices.md` directs the agent to check `trove/topics/` before non-trivial code changes. This keeps the auto-load size flat as the trove grows. (The predecessor "lode" framework had a `lode-map.md` index that was deliberately not carried over to trove: directory structure plus descriptive filenames serve the same purpose without the maintenance burden.)
 
 Requires `jq` on the user's PATH. If `jq` is unavailable the hook exits silently — you can still use `/trove:session` manually.
 
