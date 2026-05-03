@@ -1,9 +1,8 @@
 {
   "name": "trove",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Trove Coding workflow framework. Provides /trove:init (bootstrap; auto-seeds canonical files from existing project evidence when applicable), /trove:session (begin a fresh session), /trove:resume (continue from a handover), /trove:save (update meta after work), and /trove:handover (write session resume document). Auto-loads canonical trove files at session start, resume, and after compaction via SessionStart hook (no-op in projects without a trove/ directory).",
   "author": {
     "name": "Emrah Diril"
-  },
-  "hooks": "./hooks/hooks.json"
+  }
 }
