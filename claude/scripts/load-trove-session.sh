@@ -79,6 +79,8 @@ if [[ -z "$(printf '%s' "$context" | tail -n +4)" ]]; then
 fi
 
 jq -n --arg ctx "$context" '{
-  "continue": true,
-  "additionalContext": $ctx
+  "hookSpecificOutput": {
+    "hookEventName": "SessionStart",
+    "additionalContext": $ctx
+  }
 }'
