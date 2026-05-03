@@ -8,6 +8,8 @@ Workflow framework for maintaining project meta-knowledge alongside code. Provid
 - **`/trove:save`** — update trove meta-entries from accumulated git changes
 - **`/trove:handover`** — write a handover doc (use before switching to another coding agent)
 
+In addition, a **SessionStart hook** auto-injects the canonical trove files (`summary.md`, `terminology.md`, `practices.md`) plus all of `plans/`, `decisions/`, and `topics/` into the agent's context on session start, resume, and after compaction. The hook is global but self-gates on the presence of a `trove/` directory, so projects without a trove are unaffected. See [Auto-loading at session start](#auto-loading-at-session-start) below.
+
 ## Installation
 
 In any Claude Code session, add this repository as a marketplace and install the plugin:
@@ -49,3 +51,15 @@ Within Claude Code, your typical loop is just `/trove:session` → work → `/tr
 The plugin assumes the user owns git state — Claude never runs `git add`, `git commit`, or any state-mutating git command.
 
 All skills except `/trove:session` are explicit-invocation only — Claude won't auto-invoke them based on message content; you must use the slash command to trigger them. `/trove:session` may be auto-invoked when Claude detects the start of a Trove-managed task.
+
+## Auto-loading at session start
+
+Once installed, the plugin registers a `SessionStart` hook that fires on `startup`, `resume`, and `compact`. The hook script (`scripts/load-trove-session.sh`) is global — it runs in every Claude Code session — but self-gates on `[ -d trove ]` and exits silently in projects without a trove directory.
+
+When a `trove/` exists, the hook reads `summary.md`, `terminology.md`, `practices.md`, and every file in `plans/`, `decisions/`, and `topics/`, then injects them as `additionalContext` so the agent has them in scope without manual `/trove:session`. This closes the gap that used to appear after compaction (where the agent lost context-loaded files) and after `/trove:save` updates trove files mid-session.
+
+Requires `jq` on the user's PATH. If `jq` is unavailable the hook exits silently — you can still use `/trove:session` manually.
+
+The hook does not replace `/trove:session` entirely. The skill still does the explicit "ack and summarize what was loaded" pass, and prompts about handover docs in `trove/tmp/`. Practical pattern:
+- Fresh project session: invoke `/trove:session` to get the explicit summary.
+- Mid-conversation compaction or after `/trove:save`: rely on the hook.
