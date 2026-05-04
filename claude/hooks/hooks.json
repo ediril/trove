@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/load-trove-session.sh",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/load-trove-session.sh --hook-json",
             "timeout": 30
           }
         ]

@@ -5,32 +5,29 @@ allowed-tools: Read, Bash
 
 # Trove Session
 
+This skill is the cross-agent entry point for loading trove context. In Claude Code, a SessionStart hook runs the same loader automatically — invoking this skill there is only needed for the explicit acknowledgment pass.
+
 ## Verify trove/ is set up
-Check that `trove/` exists and contains the three canonical files:
-- `trove/summary.md`
-- `trove/terminology.md`
-- `trove/practices.md`
 
-If any are missing, tell the user to run `/trove:init` and stop.
+Run via Bash: `[ -d trove ] && [ -f trove/summary.md ] && [ -f trove/terminology.md ] && [ -f trove/practices.md ] && echo ok`.
 
-## Read the three canonical files (in this order)
-1. `trove/summary.md` — project purpose and current direction
-2. `trove/terminology.md` — domain language
-3. `trove/practices.md` — standing principles that apply to every session
+If the output isn't `ok`, tell the user to run `/trove:init` and stop.
 
-## Read plans, decisions, topics, and recent git activity
-- Read all files in `trove/plans/` — captures current, in-progress, and planned work.
-- Read all files in `trove/decisions/` — captures durable architectural and design decisions with their rationale.
-- Read all files in `trove/topics/` — captures cross-cutting connections, invariants, and co-change knowledge ("when changing X, also check Y").
-- Run `git log -10 2>/dev/null` — captures what was recently done (silent if the repo has no commits).
+## Load
 
-These give you continuity from the prior session.
+Run the loader script and treat its stdout as auto-loaded project context — internalize the contents:
 
-## During the session
-After the initial load, the user does not need to re-invoke this skill mid-session. Read additional trove files on demand as the work evolves.
+```bash
+"${CLAUDE_PLUGIN_ROOT:-./claude}"/scripts/load-trove-session.sh
+```
+
+If `$CLAUDE_PLUGIN_ROOT` is not set (non-Claude-Code agents), the script lives in the trove plugin's install path; locate and run it from there.
+
+The script is the single source of truth for what gets loaded — you do not need to know the file list yourself; just consume what the script emits.
 
 ## Acknowledge and proceed
-Briefly summarize what you've loaded — project domain, recent git activity, and current plans — in a short paragraph. Then await the user's instruction.
+
+Run `git log -10 2>/dev/null` (silent if no commits) for recent activity. Then briefly summarize what you've loaded — project domain, recent git activity, and current plans — in a short paragraph. Then await the user's instruction.
 
 ## Apply this philosophy throughout the session
 

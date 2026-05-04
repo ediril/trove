@@ -1,34 +1,51 @@
 #!/usr/bin/env bash
-# SessionStart hook: auto-load canonical trove files into the agent's context.
+# Trove session loader. Single source of truth for what gets loaded at
+# session start.
 #
-# Self-gates on the presence of trove/ in $CLAUDE_PROJECT_DIR. No-op otherwise,
-# so it is safe to register globally — projects without a trove are unaffected.
+# Two output modes:
+#   default      — plain text on stdout. Used by skills/session/SKILL.md
+#                  (which instructs the agent to run this script and treat
+#                  its output as auto-loaded context). Cross-agent friendly.
+#   --hook-json  — JSON wrapped per the SessionStart hook protocol
+#                  ({"hookSpecificOutput": {...}}). Used by hooks/hooks.json
+#                  in Claude Code.
+#
+# Self-gates on the presence of trove/ in $CLAUDE_PROJECT_DIR (or $PWD if
+# that env var is not set). No-op otherwise, so it is safe to register
+# globally — projects without a trove are unaffected.
 #
 # Loads the three canonical files (summary.md, terminology.md, practices.md)
-# and the full content of plans/ — current in-flight work that's critical
+# and the full content of plans/ — current in-flight work that is critical
 # context, especially after compaction.
 #
 # Does NOT auto-load decisions/ or topics/. Those are reference material the
-# agent should pull in on demand based on the current task — practices.md
-# already directs the agent to check trove/topics/ before non-trivial code
-# changes. Eager-loading every file would balloon the auto-load as the trove
-# grows; lode's lode-map.md was deliberately not carried over to trove for
-# the same reason (avoid maintenance burden + drift; let directory structure
-# and descriptive filenames be the implicit map).
+# agent should pull in on demand based on the current task. A fixed
+# read-on-demand directive is emitted at the end of the load. (Relying on
+# practices.md for the directive is unreliable — seed-generated practices.md
+# varies by project.) Eager-loading every file would also balloon the
+# auto-load as the trove grows; lode's lode-map.md was deliberately not
+# carried over to trove for the same reason: directory structure plus
+# descriptive filenames are the implicit map.
 
 set -euo pipefail
+
+mode="text"
+case "${1:-}" in
+  --hook-json) mode="hook-json" ;;
+  "" ) ;;
+  *) echo "usage: $(basename "$0") [--hook-json]" >&2; exit 2 ;;
+esac
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$PWD}"
 TROVE="$PROJECT_DIR/trove"
 
-# Self-gate: do nothing if this project doesn't use trove.
+# Self-gate: do nothing if this project does not use trove.
 if [[ ! -d "$TROVE" ]]; then
   exit 0
 fi
 
-# Require jq for safe JSON output. If unavailable, exit silently rather than
-# emit malformed output that would confuse the agent.
-if ! command -v jq >/dev/null 2>&1; then
+# JSON output requires jq. Plain-text mode does not.
+if [[ "$mode" == "hook-json" ]] && ! command -v jq >/dev/null 2>&1; then
   exit 0
 fi
 
@@ -70,9 +87,6 @@ context="$(
 
   emit_dir "$TROVE/plans" "plans/"
 
-  # Read-on-demand directive for decisions/ and topics/. Framework guidance,
-  # not user content, so the directive is reliable across projects regardless
-  # of what practices.md happens to contain.
   if [[ -d "$TROVE/decisions" || -d "$TROVE/topics" ]]; then
     printf '## Reference material (read on demand)\n\n'
     printf 'Reference files exist under `trove/decisions/` and `trove/topics/` and are NOT auto-loaded. Before non-trivial code changes, list those directories and read any files whose subject matches the area being changed. After the change, re-check them to verify nothing was missed (e.g., a known coupling).\n\n'
@@ -80,14 +94,18 @@ context="$(
 )"
 
 # Skip output entirely if the trove is empty (no canonical files yet) — avoids
-# injecting just a header with nothing under it.
+# emitting just a header with nothing under it.
 if [[ -z "$(printf '%s' "$context" | tail -n +4)" ]]; then
   exit 0
 fi
 
-jq -n --arg ctx "$context" '{
-  "hookSpecificOutput": {
-    "hookEventName": "SessionStart",
-    "additionalContext": $ctx
-  }
-}'
+if [[ "$mode" == "hook-json" ]]; then
+  jq -n --arg ctx "$context" '{
+    "hookSpecificOutput": {
+      "hookEventName": "SessionStart",
+      "additionalContext": $ctx
+    }
+  }'
+else
+  printf '%s' "$context"
+fi
