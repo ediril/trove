@@ -1,5 +1,5 @@
 ---
-description: Begin a fresh Trove Coding session by loading canonical trove files into context. Pair with /trove:save at session end. For continuing prior work from a handover, use /trove:resume instead.
+description: Begin a fresh Trove Coding session by loading canonical trove files into context. Pair with /trove:save at session end.
 allowed-tools: Read, Bash
 ---
 
@@ -24,10 +24,7 @@ If any are missing, tell the user to run `/trove:init` and stop.
 - Read all files in `trove/topics/` — captures cross-cutting connections, invariants, and co-change knowledge ("when changing X, also check Y").
 - Run `git log -10 2>/dev/null` — captures what was recently done (silent if the repo has no commits).
 
-These give you continuity from the prior session without needing an explicit handover document.
-
-## Notice but do not read handover docs
-If `trove/tmp/` contains handover documents (files matching `handover-*.md`), do not read them. Briefly mention to the user that handover docs exist and ask whether they intended `/trove:resume` instead. Wait for their answer before proceeding.
+These give you continuity from the prior session.
 
 ## During the session
 After the initial load, the user does not need to re-invoke this skill mid-session. Read additional trove files on demand as the work evolves.

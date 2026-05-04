@@ -59,10 +59,6 @@ When you have something to write, the rules below say *where it lands*. If a pie
 
 **On co-change / ripple notes (`topics/<area>-couplings.md`)**: when the user catches a missed place during this session ("you also need to update Y"), or when an invisible coupling between sites becomes apparent, capture it as a topic note. Lead with: *"When changing X, also check/update Y. Discovered when [reason]."* This is the trove's main mechanism for accruing implicit-coupling knowledge over time — the next session inherits the lesson instead of repeating the miss. Augment an existing couplings file when one fits, otherwise create a new one with a descriptive slug (e.g., `cic-yaml-couplings.md`).
 
-### Housekeeping
-
-- **`trove/tmp/`**: review handover documents (`handover-*.md`). If any describe work that has since been completed/committed, ask the user whether to delete them — stale handovers add noise.
-
 ## What "good" looks like
 
 The trove is the *meta layer*, not a changelog and not code documentation:

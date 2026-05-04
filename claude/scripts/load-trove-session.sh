@@ -70,11 +70,12 @@ context="$(
 
   emit_dir "$TROVE/plans" "plans/"
 
-  # Surface handover docs without reading them — mirrors /trove:session
-  # behavior of asking whether the user meant /trove:resume.
-  if compgen -G "$TROVE/tmp/handover-*.md" >/dev/null 2>&1; then
-    printf '## Notice\n\n'
-    printf 'Handover documents exist in `trove/tmp/`. If you intended to continue prior work, run `/trove:resume` to load the most recent one.\n\n'
+  # Read-on-demand directive for decisions/ and topics/. Framework guidance,
+  # not user content, so the directive is reliable across projects regardless
+  # of what practices.md happens to contain.
+  if [[ -d "$TROVE/decisions" || -d "$TROVE/topics" ]]; then
+    printf '## Reference material (read on demand)\n\n'
+    printf 'Reference files exist under `trove/decisions/` and `trove/topics/` and are NOT auto-loaded. Before non-trivial code changes, list those directories and read any files whose subject matches the area being changed. After the change, re-check them to verify nothing was missed (e.g., a known coupling).\n\n'
   fi
 )"
 

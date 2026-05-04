@@ -4,7 +4,7 @@ This procedure is invoked by `/trove:init` when an existing project is detected.
 
 When this procedure runs, `/trove:init` has already created the directory skeleton (`trove/`, `trove/plans/`, `trove/decisions/`, `trove/topics/`, `trove/tmp/`, `trove/.gitignore`) but **has not** created the three canonical files. This procedure creates them.
 
-The flow mirrors `/trove:handover`: read source material, write the output directly, tell the user where the result landed. **No draft-and-approve loop in chat** — the canonical files on disk are the draft, and the user reviews them via normal `git diff` / edit afterward.
+The flow is read-write-tell: read source material, write the output directly, tell the user where the result landed. **No draft-and-approve loop in chat** — the canonical files on disk are the draft, and the user reviews them via normal `git diff` / edit afterward.
 
 ## Read project docs and metadata
 

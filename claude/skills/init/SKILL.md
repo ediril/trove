@@ -12,7 +12,7 @@ Use the Bash tool to check whether `trove/` exists in the user's current working
 [ -d trove ] && echo "exists" || echo "missing"
 ```
 
-If `trove/` already exists, stop. Tell the user the trove is already initialized and suggest invoking `/trove:session` to begin a fresh session, or `/trove:resume` if continuing from a prior session that ended with `/trove:handover`.
+If `trove/` already exists, stop. Tell the user the trove is already initialized and suggest invoking `/trove:session` to begin a fresh session.
 
 If `trove/` does not exist, create the directory skeleton (canonical files are created later — either by the seed procedure for existing projects, or as empty placeholders for greenfield projects):
 
