@@ -13,7 +13,7 @@ The term "trove" evokes a hoard of accumulated value — architecture decisions,
 Trove ships as a Claude Code plugin under `claude/`. It is fully skill-based — there is no system prompt to install, no shell launcher to run. Once the plugin is installed, three slash-command skills drive the workflow:
 
 - **`/trove:init`** — bootstrap a `trove/` skeleton (no-op if it already exists). On a project with existing code, seeds the canonical files from README, manifests, top-level structure, and a sampled read of code.
-- **`/trove:session`** — begin a session; loads canonical files, plans, decisions, topics, and recent git log.
+- **`/trove:session`** — begin a session; loads canonical files plus `plans/` and recent git log. `decisions/` and `topics/` are read on demand.
 - **`/trove:save`** — update meta-entries from accumulated git changes.
 
 ## Installation
@@ -47,7 +47,7 @@ Code-level facts (function signatures, behaviors, file structure) live in the co
 A "session" is a unit of work bracketed by `/trove:session` at the start, and `/trove:save` at the end.
 
 1. **First time on a project**: invoke `/trove:init` once. On a project with existing code it will seed the canonical files from your README, manifests, top-level structure, and a sampled read of code.
-2. **Begin a session**: invoke `/trove:session` — it loads canonical files, plans, decisions, topics, and recent git log, giving you continuity from the prior session.
+2. **Begin a session**: invoke `/trove:session` — it loads canonical files, current `plans/`, and recent git log, giving you continuity from the prior session. `decisions/` and `topics/` are reference material the agent reads on demand when the current task surfaces a relevant area.
 3. **Iterate with Claude as usual**; you own git staging and commits.
 4. **End the session**: invoke `/trove:save` to update the meta layer based on accumulated git changes.
 

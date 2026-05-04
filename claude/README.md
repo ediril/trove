@@ -3,7 +3,7 @@
 Workflow framework for maintaining project meta-knowledge alongside code. Provides three skills:
 
 - **`/trove:init`** — bootstrap a `trove/` skeleton (no-op if it already exists). On a project with existing code, seeds the canonical files from README, manifests, top-level structure, and a sampled read of code — written directly to disk for review.
-- **`/trove:session`** — begin a session; loads canonical files, plans, decisions, topics, and recent git log.
+- **`/trove:session`** — begin a session; loads canonical files plus `plans/` and recent git log. `decisions/` and `topics/` are read on demand.
 - **`/trove:save`** — update trove meta-entries from accumulated git changes.
 
 In addition, a **SessionStart hook** auto-injects the canonical trove files (`summary.md`, `terminology.md`, `practices.md`) plus the full content of `plans/` into the agent's context on session start, resume, and after compaction. `decisions/` and `topics/` are read on demand. The hook is global but self-gates on the presence of a `trove/` directory, so projects without a trove are unaffected. See [Auto-loading at session start](#auto-loading-at-session-start) below.
@@ -39,7 +39,7 @@ Code-level facts (function signatures, behaviors, file structure) live in the co
 A "session" is a unit of work bracketed by `/trove:session` at the start, and `/trove:save` at the end.
 
 1. **First time on a project**: invoke `/trove:init` once. On a project with existing code it will seed the canonical files from your README, manifests, top-level structure, and a sampled read of code — written directly to disk for review.
-2. **Begin a session**: invoke `/trove:session` — it loads canonical files, plans, decisions, topics, and recent git log, giving you continuity from the prior session. (The SessionStart hook also auto-loads canonicals + plans on every fresh start, resume, and compaction — so post-compaction recovery doesn't require manual reload.)
+2. **Begin a session**: invoke `/trove:session` — it loads canonical files, current `plans/`, and recent git log, giving you continuity from the prior session. `decisions/` and `topics/` are reference material the agent reads on demand. (The SessionStart hook also auto-loads canonicals + plans on every fresh start, resume, and compaction — so post-compaction recovery doesn't require manual reload.)
 3. **Iterate with Claude as usual**; you own git staging and commits.
 4. **End the session**: invoke `/trove:save` to update the meta layer based on accumulated git changes.
 
